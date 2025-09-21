@@ -24,17 +24,20 @@ class TermHandler:
         exit(0)
 
 def main():
+    deathcounter = 1
     while True:
         proc = subprocess.Popen(["goimapnotify"], text=True, stderr=subprocess.PIPE)
         TermHandler(proc)
         for line in proc.stderr:
             sys.stderr.write(line)
             result = proc.poll()
-            if result is not None:
-                if "cannot make IMAP client" not in line:
+            if "cannot make IMAP client" not in line:
+                if result is not None:
                     exit(result)
+                deathcounter = 1
         sys.stderr.write("wrapper: goimapnotify died for lack of network, restarting")
-        sleep(60)
+        sleep(60 * deathcounter)
+        deathcounter += 1
 
 if __name__ == "__main__":
     main()
